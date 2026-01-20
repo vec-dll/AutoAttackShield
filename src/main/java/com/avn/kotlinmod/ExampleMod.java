@@ -6,79 +6,85 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.ClientPlayerEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.AxeItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.util.hit.EntityHitResult;
 import net.minecraft.util.hit.HitResult;
-import net.minecraft.text.Text;
 
-public class AutoAttackShield implements ClientModInitializer {
+public class ExampleMod implements ClientModInitializer {
 
-    public static boolean ENABLED = true;
-    private boolean attacked = false;
+    private boolean waiting = false;
+    private int timer = 0;
 
     @Override
     public void onInitializeClient() {
+
         Keybinds.register();
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            handleKey(client);
+            Keybinds.onTick(client);
             onTick(client);
         });
     }
 
-    private void handleKey(MinecraftClient client) {
-        while (Keybinds.TOGGLE.wasPressed()) {
-            ENABLED = !ENABLED;
-
-            if (client.player != null) {
-                client.player.sendMessage(
-                        Text.literal("AutoAttackShield: " + (ENABLED ? "§aON" : "§cOFF")),
-                        true
-                );
-            }
-        }
-    }
-
     private void onTick(MinecraftClient client) {
-        if (!ENABLED) return;
-        if (client.player == null || client.world == null) return;
+        if (!Config.enabled) return;
+        if (client.player == null) return;
+        if (client.world == null) return;
 
         HitResult hit = client.crosshairTarget;
         if (!(hit instanceof EntityHitResult ehr)) {
-            attacked = false;
+            reset();
             return;
         }
 
         if (!(ehr.getEntity() instanceof PlayerEntity target)) {
-            attacked = false;
+            reset();
             return;
         }
 
-        if (!target.isUsingItem() || !target.getActiveItem().isOf(net.minecraft.item.Items.SHIELD)) {
-            attacked = false;
+        // проверка что враг использует щит
+        if (!target.isUsingItem() || target.getActiveItem().getItem() != Items.SHIELD) {
+            reset();
             return;
         }
 
-        if (attacked) return;
+        // задержка
+        if (!waiting) {
+            waiting = true;
+            timer = Config.delayTicks;
+            return;
+        }
 
-        ClientPlayerEntity player = client.player;
+        if (timer > 0) {
+            timer--;
+            return;
+        }
+
+        // атака топором
+        attack(client.player, target, client);
+        reset();
+    }
+
+    private void reset() {
+        waiting = false;
+        timer = 0;
+    }
+
+    private void attack(ClientPlayerEntity player, PlayerEntity target, MinecraftClient client) {
+        int oldSlot = player.getInventory().selectedSlot;
+
         int axeSlot = findAxe(player);
         if (axeSlot == -1) return;
-
-        int oldSlot = player.getInventory().selectedSlot;
 
         player.getInventory().selectedSlot = axeSlot;
         client.interactionManager.attackEntity(player, target);
         player.swingHand(player.getActiveHand());
         player.getInventory().selectedSlot = oldSlot;
-
-        attacked = true;
     }
 
     private int findAxe(ClientPlayerEntity player) {
         for (int i = 0; i < 9; i++) {
-            ItemStack stack = player.getInventory().getStack(i);
-            if (stack.getItem() instanceof AxeItem) {
+            if (player.getInventory().getStack(i).getItem() instanceof AxeItem) {
                 return i;
             }
         }
