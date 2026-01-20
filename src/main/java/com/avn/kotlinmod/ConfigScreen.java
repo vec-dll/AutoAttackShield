@@ -16,7 +16,7 @@ public class ConfigScreen {
         ConfigEntryBuilder entry = builder.entryBuilder();
         var cat = builder.getOrCreateCategory(Text.literal("General"));
 
-        // ON/OFF toggle
+        // ON/OFF 
         cat.addEntry(
                 entry.startBooleanToggle(Text.literal("Enable"), Config.enabled)
                         .setSaveConsumer(val -> Config.enabled = val)
@@ -24,7 +24,7 @@ public class ConfigScreen {
                         .build()
         );
 
-        // Delay slider (0–20 ticks)
+        // (0–20 ticks)
         cat.addEntry(
                 entry.startIntSlider(Text.literal("Delay (ticks)"), Config.delayTicks, 0, 20)
                         .setSaveConsumer(val -> Config.delayTicks = val)
