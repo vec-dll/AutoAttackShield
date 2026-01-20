@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "id": "autoattackshield",
+  "version": "${version}",
+  "name": "Auto Attack Shield",
+  "environment": "client",
+
+  "entrypoints": {
+    "client": [
+      "com.avn.autoattackshield.AutoAttackShield"
+    ],
+    "modmenu": [
+      "com.avn.autoattackshield.modmenu.ModMenuIntegration"
+    ]
+  },
+
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "minecraft": "1.21.1",
+    "fabric-api": "*",
+    "cloth-config2": "*",
+    "modmenu": "*"
+  }
+}
