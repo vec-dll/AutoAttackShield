@@ -42,13 +42,11 @@ public class ExampleMod implements ClientModInitializer {
             return;
         }
 
-        // проверка что враг использует щит
         if (!target.isUsingItem() || target.getActiveItem().getItem() != Items.SHIELD) {
             reset();
             return;
         }
 
-        // задержка
         if (!waiting) {
             waiting = true;
             timer = Config.delayTicks;
@@ -60,7 +58,6 @@ public class ExampleMod implements ClientModInitializer {
             return;
         }
 
-        // атака топором
         attack(client.player, target, client);
         reset();
     }
