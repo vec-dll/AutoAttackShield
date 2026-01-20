@@ -13,7 +13,8 @@ public class Keybinds {
         TOGGLE = KeyBindingHelper.registerKeyBinding(new KeyBinding(
                 "key.autoattackshield.toggle",
                 InputUtil.Type.KEYSYM,
-                GLFW.GLFW_KEY_R, // кнопка по умолчанию (можно поменять)
+                GLFW.GLFW_KEY_R, 
+        
                 "category.autoattackshield"
         ));
     }
